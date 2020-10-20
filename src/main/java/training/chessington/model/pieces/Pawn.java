@@ -6,6 +6,7 @@ import training.chessington.model.Move;
 import training.chessington.model.PlayerColour;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Pawn extends AbstractPiece {
@@ -15,24 +16,25 @@ public class Pawn extends AbstractPiece {
 
     @Override
     public List<Move> getAllowedMoves(Coordinates from, Board board) {
-        PlayerColour myColour;
-        List<Move> moves;
-        Coordinates to;
-        Move moveOne;
-        Move moveTwo;
-        int row;
+        PlayerColour myColour = getColour();
+        List<Move> moves = Collections.emptyList();
+        Move moveOne = null;
+        Move moveTwo = null;
+        int row = from.getRow();
 
-        myColour = getColour();
-        row = from.getRow();
-        moves = new ArrayList<>();
+        Coordinates to;
         if (myColour == PlayerColour.BLACK) {
             to = from.plus(1, 0);
         } else {
             to = from.plus(-1,0);
         }
-        moveOne = new Move(from, to);
 
-        moveTwo = null;
+        Piece piece;
+        piece = board.get(to);
+        if (piece == null) {
+            moveOne = new Move(from, to);
+        }
+
         if (myColour == PlayerColour.BLACK && row == 1) {
             to = from.plus(2, 0);
             moveTwo = new Move(from, to);
@@ -41,7 +43,9 @@ public class Pawn extends AbstractPiece {
             moveTwo = new Move(from, to);
         }
 
-        moves.add(moveOne);
+        if (moveOne != null) {
+            moves.add(moveOne);
+        }
         if (moveTwo != null) {
             moves.add(moveTwo);
         }
