@@ -16,14 +16,24 @@ public class Pawn extends AbstractPiece {
 
     @Override
     public List<Move> getAllowedMoves(Coordinates from, Board board) {
-        PlayerColour myColour = getColour();
         List<Move> moves = new ArrayList<>();
-        Move moveOne = null;
-        Move moveTwo = null;
-        int row = from.getRow();
+        Move moveOne = getMoveOne(from, board);
+        Move moveTwo = getMoveTwo(from);
+        List<Move> moveDiagonals = getMoveDiagonals(from, board);
 
+        if (moveOne != null) {
+            moves.add(moveOne);
+        }
+        if (moveTwo != null) {
+            moves.add(moveTwo);
+        }
+        moves.addAll(moveDiagonals);
+        return moves;
+    }
+
+    private Move getMoveOne(Coordinates from, Board board) {
         Coordinates to;
-        if (myColour == PlayerColour.BLACK) {
+        if (getColour() == PlayerColour.BLACK) {
             to = from.plus(1, 0);
         } else {
             to = from.plus(-1,0);
@@ -33,26 +43,53 @@ public class Pawn extends AbstractPiece {
         try {
             piece = board.get(to);
             if (piece == null) {
-                moveOne = new Move(from, to);
+                return new Move(from, to);
             }
         } catch (IndexOutOfBoundsException e) {
             // Do nothing
         }
+        return null;
+    }
 
-        if (myColour == PlayerColour.BLACK && row == 1) {
+    private Move getMoveTwo(Coordinates from) {
+        Coordinates to;
+        if (getColour() == PlayerColour.BLACK && from.getRow() == 1) {
             to = from.plus(2, 0);
-            moveTwo = new Move(from, to);
-        } else if (myColour == PlayerColour.WHITE && row == 6){
+            return new Move(from, to);
+        } else if (getColour() == PlayerColour.WHITE && from.getRow() == 6){
             to = from.plus(-2,0);
-            moveTwo = new Move(from, to);
+            return new Move(from, to);
         }
+        return null;
+    }
 
-        if (moveOne != null) {
-            moves.add(moveOne);
+    private List<Move> getMoveDiagonals(Coordinates from, Board board) {
+        List<Move> diagonalMoves = new ArrayList<>();
+        Coordinates toLeft;
+        Coordinates toRight;
+        int rowDiff;
+        if (getColour() == PlayerColour.BLACK) {
+            rowDiff = 1;
+        } else {
+            rowDiff = -1;
         }
-        if (moveTwo != null) {
-            moves.add(moveTwo);
+        toLeft = from.plus(rowDiff, -1);
+        toRight = from.plus(rowDiff, 1);
+
+        addDiagonalMove(from, board, diagonalMoves, toLeft);
+        addDiagonalMove(from, board, diagonalMoves, toRight);
+        return diagonalMoves;
+    }
+
+    private void addDiagonalMove(Coordinates from, Board board, List<Move> diagonalMoves, Coordinates coordinates) {
+        Piece piece;
+        try {
+            piece = board.get(coordinates);
+            if (piece != null && piece.getColour() != getColour()) {
+                diagonalMoves.add(new Move(from, coordinates));
+            }
+        } catch (IndexOutOfBoundsException e) {
+            // Do nothing
         }
-        return moves;
     }
 }
