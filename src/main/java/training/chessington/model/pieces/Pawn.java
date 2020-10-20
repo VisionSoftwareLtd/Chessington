@@ -17,7 +17,7 @@ public class Pawn extends AbstractPiece {
     @Override
     public List<Move> getAllowedMoves(Coordinates from, Board board) {
         PlayerColour myColour = getColour();
-        List<Move> moves = Collections.emptyList();
+        List<Move> moves = new ArrayList<>();
         Move moveOne = null;
         Move moveTwo = null;
         int row = from.getRow();
@@ -30,9 +30,13 @@ public class Pawn extends AbstractPiece {
         }
 
         Piece piece;
-        piece = board.get(to);
-        if (piece == null) {
-            moveOne = new Move(from, to);
+        try {
+            piece = board.get(to);
+            if (piece == null) {
+                moveOne = new Move(from, to);
+            }
+        } catch (IndexOutOfBoundsException e) {
+            // Do nothing
         }
 
         if (myColour == PlayerColour.BLACK && row == 1) {
